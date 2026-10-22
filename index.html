@@ -1,0 +1,2180 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIwMzk4NDU1NjY3MTY3NjYxMjQ2NSIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjXzYzNzA1MGRmYmJlMTJjNmFfMjg4MDljMWZfemhlbmd6aG91X2V0Y19mcmVlX2hpZ2h3YXlzLmh0bWwtNDU1In0sImV4cCI6MTc5MjU3ODc1MiwiaWF0IjoxNzkyNTc1MTUyLCJhbGciOiJSUzI1NiJ9.M5taNjgd1dYS6j7CnQGo4_PZXN2gE7gTLlkETTeiT5bT8qeeff3NUnpHMpYo5BUWhIc5IyupQ05OKfJlVfsZ0eITCjV5XgO_3_1RVG-gyjKYL_LKUL35SVG0M5u_PJmBXZ9V-5EzPUa0LW6zm0rfxQ-Ev-Vx3d66KH5o_cii5DNO-5vkpGhzQ1Xc7rNfllGpXpD9mL_qT31UNvbQuSh7oVtwso1Tn6bMryy6AkddyVPhckkhFX_thbyEKvNyrrfqlQortgD9hDEA5mzxvUDVw-k-aSUxjbcGj2GkoFY8YyaFFy89lBQad-PLlLPDwRiK6eJthc3iEjttP95B-So6aQ","c_637050dfbbe12c6a_28809c1f_zhengzhou_etc_free_highways.html-455")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.j=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.i="";var l=0,t=null,r=null,q=[],F=new TextEncoder,G=new TextDecoder;
+c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*16|0;return(f===
+"x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;(g=t)==null||g.postMessage(a)}};
+Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>郑州-登封-新郑-航空港-开封-兰考 ETC高速免费真实地理路线图</title>
+  <style>
+    :root {
+      --bg-darkest: #040816;
+      --bg-card: #091228;
+      --bg-surface: #101c38;
+      --bg-input: #1a284c;
+      --border-color: #20335e;
+      --border-light: #2d457d;
+      --text-white: #f8fafc;
+      --text-slate-200: #e2e8f0;
+      --text-slate-300: #cbd5e1;
+      --text-slate-400: #94a3b8;
+      --blue-500: #3b82f6;
+      --blue-600: #2563eb;
+      --blue-400: #60a5fa;
+      --emerald-500: #10b981;
+      --emerald-400: #34d399;
+      --purple-500: #a855f7;
+      --amber-500: #f59e0b;
+      --amber-400: #fbbf24;
+      --red-500: #ef4444;
+      --cyan-500: #06b6d4;
+      --pink-500: #ec4899;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-darkest);
+      color: var(--text-slate-200);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    header {
+      background-color: #060c1d;
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 0.75rem 1.25rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .badge-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.75rem;
+      background: linear-gradient(135deg, #2563eb, #6366f1, #10b981);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+      font-size: 1.35rem;
+      box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+      user-select: none;
+    }
+
+    .header-titles h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .geo-tag {
+      font-size: 0.75rem;
+      padding: 0.15rem 0.6rem;
+      border-radius: 9999px;
+      background-color: rgba(6, 182, 212, 0.15);
+      color: var(--cyan-500);
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .header-titles p {
+      font-size: 0.75rem;
+      color: var(--text-slate-400);
+      margin-top: 0.15rem;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-action {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      color: var(--text-slate-200);
+      padding: 0.4rem 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+
+    .btn-action:hover {
+      background: #1c2c54;
+      color: white;
+      border-color: var(--blue-400);
+      transform: translateY(-1px);
+    }
+
+    .btn-action-primary {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      border: 1px solid #60a5fa;
+      color: white;
+    }
+
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: var(--bg-surface);
+      padding: 0.25rem;
+      border-radius: 0.6rem;
+      border: 1px solid var(--border-color);
+    }
+
+    .filter-btn {
+      padding: 0.35rem 0.75rem;
+      border-radius: 0.45rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      color: var(--text-slate-400);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .filter-btn:hover {
+      color: white;
+      background-color: rgba(255,255,255,0.06);
+    }
+
+    .filter-btn.active {
+      background-color: var(--blue-600);
+      color: white;
+      box-shadow: 0 2px 6px rgba(37,99,235,0.4);
+    }
+
+    main {
+      flex: 1;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.25rem 1rem;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (min-width: 1024px) {
+      main {
+        grid-template-columns: 8fr 4fr;
+      }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-header {
+      padding: 0.75rem 1rem;
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .card-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .card-body {
+      padding: 1rem;
+    }
+
+    .map-canvas-wrapper {
+      position: relative;
+      flex: 1;
+      min-height: 560px;
+      background: radial-gradient(circle at 50% 50%, #0d1a3a 0%, #040816 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 0.5rem;
+    }
+
+    .compass {
+      position: absolute;
+      top: 1rem;
+      right: 1.25rem;
+      pointer-events: none;
+      opacity: 0.85;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      user-select: none;
+    }
+
+    .compass-n {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--red-500);
+    }
+
+    .compass-line {
+      width: 2px;
+      height: 24px;
+      background: linear-gradient(to bottom, var(--red-500), #64748b);
+      margin: 2px 0;
+    }
+
+    .compass-e {
+      font-size: 0.7rem;
+      color: var(--text-slate-400);
+    }
+
+    .station-node {
+      cursor: pointer;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+
+    .station-node:hover {
+      filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.95));
+    }
+
+    .route-line {
+      cursor: pointer;
+      transition: stroke-width 0.2s ease, opacity 0.2s ease;
+    }
+
+    .route-line:hover {
+      stroke-width: 9px !important;
+      opacity: 1 !important;
+    }
+
+    #hoverTooltip {
+      position: absolute;
+      display: none;
+      pointer-events: none;
+      z-index: 100;
+      background: rgba(8, 15, 34, 0.96);
+      border: 1px solid var(--border-light);
+      color: white;
+      border-radius: 0.6rem;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.75rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      max-width: 270px;
+    }
+
+    #tooltipTitle {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--blue-400);
+      margin-bottom: 0.35rem;
+    }
+
+    .legend-bar {
+      padding: 0.65rem 1rem;
+      background-color: var(--bg-surface);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      font-size: 0.75rem;
+    }
+
+    .legend-items {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: var(--text-slate-300);
+    }
+
+    .legend-line {
+      width: 1rem;
+      height: 4px;
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    .form-group {
+      margin-bottom: 0.85rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-slate-400);
+      margin-bottom: 0.35rem;
+      font-weight: 500;
+    }
+
+    .plate-radios {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .plate-card {
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.25rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .plate-card input {
+      display: none;
+    }
+
+    .plate-card.selected {
+      border-color: var(--blue-500);
+      background: rgba(37, 99, 235, 0.25);
+    }
+
+    .plate-card.selected-red {
+      border-color: var(--red-500);
+      background: rgba(239, 68, 68, 0.25);
+    }
+
+    .plate-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-white);
+    }
+
+    .plate-sub {
+      font-size: 0.65rem;
+      color: var(--text-slate-400);
+      margin-top: 2px;
+    }
+
+    .select-input {
+      width: 100%;
+      background-color: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      color: var(--text-slate-200);
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    .select-input:focus {
+      border-color: var(--blue-500);
+    }
+
+    .btn-calc {
+      width: 100%;
+      padding: 0.65rem;
+      background: linear-gradient(135deg, #2563eb, #4f46e5);
+      border: 1px solid #60a5fa;
+      color: white;
+      font-weight: 700;
+      font-size: 0.8rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+    }
+
+    .result-box {
+      margin-top: 1rem;
+      padding: 0.85rem;
+      border-radius: 0.65rem;
+      border: 1px solid var(--border-color);
+      background-color: #060c1d;
+      font-size: 0.75rem;
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.45rem;
+    }
+
+    .result-badge {
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.35rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .result-badge.free {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--emerald-400);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .result-badge.warning {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--amber-400);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .result-badge.danger {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+
+    .policy-item {
+      padding: 0.65rem 0.75rem;
+      background: var(--bg-surface);
+      border-radius: 0.5rem;
+      border: 1px solid rgba(255,255,255,0.05);
+      margin-bottom: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-slate-300);
+      line-height: 1.45;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(2, 6, 23, 0.85);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-window {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      max-width: 820px;
+      width: 100%;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      overflow: hidden;
+    }
+
+    .station-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+      text-align: left;
+    }
+
+    .station-table th, .station-table td {
+      padding: 0.6rem 0.75rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .station-table tr:hover td {
+      background-color: rgba(255,255,255,0.04);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 顶部导航栏 -->
+  <header>
+    <div class="header-container">
+      <div class="logo-area">
+        <div class="badge-icon">豫</div>
+        <div class="header-titles">
+          <h1>
+            郑州都市圈 ETC 高速免费真实地理路线图
+            <span class="geo-tag">真实经纬度地理走线</span>
+          </h1>
+          <p>涵盖范围：郑州绕城 · 登封少林 · 新郑 · 航空港区 · 开封 · 兰考 (结合黄河、嵩山与真实公路走向)</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btnDownloadHtml" class="btn-action" title="将当前系统保存为纯本地单文件 HTML">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          保存离线网页
+        </button>
+        <button id="btnExportPng" class="btn-action btn-action-primary" title="将真实地理示意图导出为高清图片">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+          导出真实地理大图 (PNG)
+        </button>
+        <button id="btnPrint" class="btn-action" title="打印或另存为PDF">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+          打印/存PDF
+        </button>
+      </div>
+
+      <div class="filter-bar" id="regionFilterGroup">
+        <button data-region="all" class="filter-btn active">全网全景</button>
+        <button data-region="zhengzhou" class="filter-btn">郑州主城绕城</button>
+        <button data-region="dengfeng" class="filter-btn">登封/新密线</button>
+        <button data-region="gangqu" class="filter-btn">新郑/航空港</button>
+        <button data-region="kaifeng" class="filter-btn">开封/兰考线</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- 左侧：真实地理路线图画板 -->
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background-color:var(--cyan-500);"></span>
+          真实地理走线高速示意图 (按实际经纬度、水系山脉及实际公路走势绘制)
+        </div>
+        <div style="font-size:0.75rem; color:var(--text-slate-400);">
+          <span id="mapStatusText" style="color:var(--cyan-500); font-weight:600;">实际地理比例全景模式 (50+收费站)</span>
+        </div>
+      </div>
+
+      <div class="map-canvas-wrapper" id="svgContainer">
+        <div class="compass">
+          <span class="compass-n">北 N</span>
+          <div class="compass-line"></div>
+          <span class="compass-e">东 E</span>
+        </div>
+
+        <div id="hoverTooltip" style="display: none; left: 492.754px; top: 214.523px;">
+          <p id="tooltipTitle">中牟站 </p>
+          <div id="tooltipContent" style="color:var(--text-slate-300); line-height:1.5;">
+            <div><strong>所属高速：</strong>连霍高速 (G30)</div>
+            <div><strong>地理区域：</strong>中牟</div>
+            <div><strong>适用车牌：</strong>豫A/豫V/豫B (需ETC)</div>
+            <div><strong>政策归属：</strong>郑开兰</div>
+            <div style="margin-top:4px; color:var(--emerald-400); font-weight:700; font-size:10px;">点击快速设为测算站点</div>
+          </div>
+        </div>
+
+        <!-- 真实地理路线矢量图 SVG -->
+        <svg id="schematicSvg" viewBox="0 0 1380 820" style="width:100%; height:100%; max-height:640px; user-select:none;">
+          <!-- 真实地理底图背景：黄河与嵩山山脉 -->
+          <g class="geo-background">
+            <!-- 经纬度参考网格 -->
+            <g opacity="0.12" stroke="#64748b" stroke-width="0.75">
+              <line x1="158.2" y1="40" x2="158.2" y2="780"></line>
+              <line x1="453.6" y1="40" x2="453.6" y2="780"></line>
+              <line x1="749.1" y1="40" x2="749.1" y2="780"></line>
+              <line x1="1044.5" y1="40" x2="1044.5" y2="780"></line>
+              <line x1="40" y1="674.0" x2="1340" y2="674.0"></line>
+              <line x1="40" y1="482.0" x2="1340" y2="482.0"></line>
+              <line x1="40" y1="290.0" x2="1340" y2="290.0"></line>
+              <line x1="40" y1="98.0" x2="1340" y2="98.0"></line>
+            </g>
+
+            <!-- 嵩山山脉地形晕染 -->
+            <ellipse cx="158.2" cy="606.8" rx="90" ry="70" fill="#2d1d4c" opacity="0.45"></ellipse>
+            <text x="158.2" y="558.8" font-size="12" font-weight="bold" fill="#c084fc" text-anchor="middle" opacity="0.7">嵩山山脉 (少室山/太室山)</text>
+
+            <!-- 黄河真实走线 -->
+            <path d="M 40.0,194.0 L 158.2,174.8 L 305.9,165.2 L 424.1,146.0 L 542.3,146.0 L 619.1,174.8 L 719.5,194.0 L 837.7,203.6 L 955.9,184.4 L 1074.1,165.2 L 1192.3,146.0 L 1280.9,107.6 L 1340.0,69.2" fill="none" stroke="#0284c7" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"></path>
+            <path d="M 40.0,194.0 L 158.2,174.8 L 305.9,165.2 L 424.1,146.0 L 542.3,146.0 L 619.1,174.8 L 719.5,194.0 L 837.7,203.6 L 955.9,184.4 L 1074.1,165.2 L 1192.3,146.0 L 1280.9,107.6 L 1340.0,69.2" fill="none" stroke="#38bdf8" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"></path>
+            <text x="601.4" y="148.4" font-size="12" font-weight="bold" fill="#7dd3fc" text-anchor="middle">黄 河 (Yellow River)</text>
+
+            <!-- 城市主城区轮廓面 -->
+            <!-- 郑州市区 -->
+            <rect x="471.4" y="270.8" width="147.70000000000005" height="134.39999999999998" rx="12" fill="#0f2347" stroke="#1d4ed8" stroke-width="1.5" opacity="0.8"></rect>
+            <text x="548.2" y="338.0" font-size="16" font-weight="900" fill="#60a5fa" text-anchor="middle" opacity="0.75">郑州市主城区</text>
+
+            <!-- 开封市区 -->
+            <rect x="914.5" y="261.2" width="82.79999999999995" height="76.80000000000001" rx="10" fill="#2b200a" stroke="#ca8a04" stroke-width="1.5" opacity="0.8"></rect>
+            <text x="950.0" y="299.6" font-size="14" font-weight="bold" fill="#facc15" text-anchor="middle" opacity="0.8">开封主城区</text>
+
+            <!-- 航空港区 -->
+            <rect x="630.9" y="501.2" width="70.89999999999998" height="115.19999999999999" rx="10" fill="#082b3b" stroke="#0d9488" stroke-width="1.5" opacity="0.8"></rect>
+            <text x="666.4" y="549.2" font-size="11" font-weight="bold" fill="#2dd4bf" text-anchor="middle" opacity="0.85">航空港区 (CGO)</text>
+
+            <!-- 登封、新密、新郑、中牟、兰考标注 -->
+            <text x="175.9" y="645.2" font-size="12" font-weight="bold" fill="#e9d5ff" text-anchor="middle">登封市</text>
+            <text x="400.5" y="568.4" font-size="12" font-weight="bold" fill="#e9d5ff" text-anchor="middle">新密市</text>
+            <text x="589.5" y="693.2" font-size="12" font-weight="bold" fill="#7dd3fc" text-anchor="middle">新郑市</text>
+            <text x="737.3" y="366.8" font-size="12" font-weight="bold" fill="#94a3b8" text-anchor="middle">中牟县</text>
+            <text x="1227.7" y="299.6" font-size="12" font-weight="bold" fill="#fed7aa" text-anchor="middle">兰考县</text>
+          </g>
+
+          <!-- 真实高速公路走向线层 -->
+          <g id="highwayLinesGroup">
+            <!-- G30 连霍高速 -->
+            <path id="line-lianhuo" class="route-line" data-name="连霍高速 (G30)" d="M 365.0,242.0 L 459.5,242.0 L 512.7,251.6 L 530.5,242.0 L 554.1,242.0 L 571.8,242.0 L 589.5,242.0 L 619.1,251.6 L 737.3,299.6 L 820.0,290.0 L 890.9,280.4 L 944.1,261.2 L 961.8,270.8 L 1009.1,280.4 L 1115.5,280.4 L 1227.7,270.8 L 1310.5,261.2" fill="none" stroke="#ef4444" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+            
+            <!-- G3001 西南绕城 -->
+            <path id="line-bypass" class="route-line" data-name="郑州西南绕城高速 (G3001)" d="M 459.5,242.0 L 453.6,261.2 L 453.6,290.0 L 453.6,328.4 L 459.5,347.6 L 471.4,366.8 L 489.1,386.0 L 500.9,424.4 L 518.6,424.4 L 548.2,434.0 L 583.6,434.0 L 630.9,434.0" fill="none" stroke="#3b82f6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+
+            <!-- G4 京港澳高速 -->
+            <path id="line-jinggangao" class="route-line" data-name="京港澳高速 (G4)" d="M 630.9,213.2 L 630.9,251.6 L 630.9,309.2 L 630.9,357.2 L 630.9,376.4 L 630.9,405.2 L 630.9,434.0 L 619.1,510.8 L 642.7,616.4 L 613.2,674.0 L 613.2,741.2" fill="none" stroke="#10b981" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+
+            <!-- S85 郑少高速 -->
+            <path id="line-zhengshao" class="route-line" data-name="郑少高速 (S85)" d="M 489.1,386.0 L 465.5,443.6 L 435.9,491.6 L 412.3,539.6 L 382.7,558.8 L 341.4,578.0 L 276.4,597.2 L 240.9,616.4 L 205.5,626.0 L 164.1,616.4 L 134.5,587.6" fill="none" stroke="#a855f7" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+
+            <!-- S1 机场高速 -->
+            <path id="line-airport" class="route-line" data-name="机场高速 (S1)" d="M 583.6,395.6 L 607.3,453.2 L 642.7,520.4 L 654.5,558.8 L 684.1,549.2" fill="none" stroke="#06b6d4" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+
+            <!-- S88 郑栾高速 -->
+            <path id="line-zhengluan" class="route-line" data-name="郑栾高速 (S88)" d="M 518.6,424.4 L 530.5,472.4 L 548.2,520.4 L 554.1,597.2 L 554.1,674.0" fill="none" stroke="#f59e0b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
+
+            <!-- S60 商登高速 -->
+            <path id="line-shangdeng" class="route-line" data-name="商登高速 (S60)" d="M 181.8,664.4 L 276.4,635.6 L 382.7,616.4 L 447.7,626.0 L 554.1,626.0 L 595.5,626.0 L 678.2,626.0 L 737.3,626.0 L 837.7,626.0" fill="none" stroke="#ec4899" stroke-width="4.5" stroke-dasharray="8 3" stroke-linecap="round" stroke-linejoin="round"></path>
+
+            <!-- S82 郑民高速 -->
+            <path id="line-zhengmin" class="route-line" data-name="郑民高速 (S82)" d="M 630.9,405.2 L 666.4,414.8 L 731.4,424.4 L 808.2,405.2 L 885.0,376.4 L 950.0,347.6 L 1044.5,338.0" fill="none" stroke="#eab308" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+
+            <!-- G1511 日兰高速 -->
+            <path id="line-rilan" class="route-line" data-name="日兰高速 (G1511)" d="M 1227.7,270.8 L 1204.1,232.4 L 1227.7,194.0 L 1251.4,136.4" fill="none" stroke="#f97316" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
+
+            <!-- S25 安罗高速 -->
+            <path id="line-anluo" class="route-line" data-name="安罗高速 (S25)" d="M 737.3,299.6 L 737.3,424.4 L 737.3,626.0" fill="none" stroke="#14b8a6" stroke-width="3.5" stroke-dasharray="5 3" stroke-linecap="round"></path>
+          </g>
+
+          <!-- 高速路线徽标 -->
+          <g font-size="9" font-weight="bold" text-anchor="middle" fill="#ffffff">
+            <rect x="784.2" y="252.8" width="48" height="16" rx="4" fill="#dc2626"></rect>
+            <text x="808.2" y="264.8">G30 连霍</text>
+
+            <rect x="630.5" y="310.4" width="48" height="16" rx="4" fill="#059669"></rect>
+            <text x="654.5" y="322.4">G4 京港澳</text>
+
+            <rect x="281.9" y="540.8" width="48" height="16" rx="4" fill="#7c3aed"></rect>
+            <text x="305.9" y="552.8">S85 郑少</text>
+
+            <rect x="813.7" y="396.8" width="48" height="16" rx="4" fill="#ca8a04"></rect>
+            <text x="837.7" y="408.8">S82 郑民</text>
+
+            <rect x="299.6" y="653.2" width="48" height="16" rx="4" fill="#db2777"></rect>
+            <text x="323.6" y="665.2">S60 商登</text>
+
+            <rect x="571.3" y="474.0" width="44" height="16" rx="4" fill="#0891b2"></rect>
+            <text x="593.3" y="486.0">S1 机场</text>
+
+            <rect x="490.5" y="560.4" width="44" height="16" rx="4" fill="#d97706"></rect>
+            <text x="512.5" y="572.4">S88 郑栾</text>
+
+            <rect x="394.0" y="301.2" width="54" height="16" rx="4" fill="#2563eb"></rect>
+            <text x="421.0" y="313.2">G3001 绕城</text>
+
+            <rect x="1166.3" y="195.6" width="48" height="16" rx="4" fill="#ea580c"></rect>
+            <text x="1190.3" y="207.6">G1511 日兰</text>
+          </g>
+
+          <!-- 真实地理坐标收费站点 -->
+          <g id="stationNodesGroup">
+            <!-- 连霍段各站 -->
+            <g class="station-node" data-id="gouzhao" data-name="沟赵站" data-road="连霍/绕城" data-type="zz" transform="translate(459.5, 242.0)">
+              <circle r="6" fill="#3b82f6" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="0" y="-12" text-anchor="middle" font-size="10" fill="#e2e8f0" font-weight="bold">沟赵站</text>
+            </g>
+            <g class="station-node" data-id="huiji" data-name="惠济站" data-road="连霍高速" data-type="zz" transform="translate(530.5, 242.0)">
+              <circle r="5" fill="#3b82f6" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="0" y="-12" text-anchor="middle" font-size="9" fill="#cbd5e1">惠济</text>
+            </g>
+            <g class="station-node" data-id="wenhualu" data-name="文化路站" data-road="连霍高速" data-type="zz" transform="translate(554.1, 242.0)">
+              <circle r="5" fill="#3b82f6" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="0" y="16" text-anchor="middle" font-size="9" fill="#cbd5e1">文化路</text>
+            </g>
+            <g class="station-node" data-id="huayuanlu" data-name="花园路站" data-road="连霍高速" data-type="overlap" transform="translate(571.8, 242.0)">
+              <circle r="7.5" fill="#10b981" stroke="#ffffff" stroke-width="2"></circle>
+              <text x="0" y="-14" text-anchor="middle" font-size="10" fill="#34d399" font-weight="bold">花园路站 ★</text>
+            </g>
+            <g class="station-node" data-id="liulin" data-name="柳林站" data-road="连霍高速" data-type="overlap" transform="translate(589.5, 242.0)">
+              <circle r="7" fill="#10b981" stroke="#ffffff" stroke-width="2"></circle>
+              <text x="0" y="18" text-anchor="middle" font-size="10" fill="#34d399" font-weight="bold">柳林站 ★</text>
+            </g>
+            <g class="station-node" data-id="dongsanhuanbei" data-name="东三环北站" data-road="连霍高速" data-type="overlap" transform="translate(619.1, 251.6)">
+              <circle r="7" fill="#10b981" stroke="#ffffff" stroke-width="2"></circle>
+              <text x="0" y="-14" text-anchor="middle" font-size="10" fill="#34d399" font-weight="bold">东三环北</text>
+            </g>
+            <g class="station-node" data-id="zhongmu" data-name="中牟站" data-road="连霍高速" data-type="kaifeng" transform="translate(737.3, 299.6)">
+              <circle r="6" fill="#ef4444" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="0" y="-12" text-anchor="middle" font-size="10" fill="#fecaca">中牟站</text>
+            </g>
+            <g class="station-node" data-id="kaifengxi" data-name="开封西站" data-road="连霍高速" data-type="kaifeng" transform="translate(890.9, 280.4)">
+              <circle r="6.5" fill="#ef4444" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="0" y="-12" text-anchor="middle" font-size="10" fill="#fecaca" font-weight="bold">开封西</text>
+            </g>
+            <g class="station-node" data-id="longting" data-name="龙亭站" data-road="连霍高速" data-type="kaifeng" transform="translate(944.1, 261.2)">
+              <circle r="6.5" fill="#ef4444" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="0" y="-12" text-anchor="middle" font-size="10" fill="#fecaca" font-weight="bold">龙亭站</text>
+            </g>
+            <g class="station-node" data-id="kaifeng" data-name="开封站" data-road="连霍高速" data-type="kaifeng" transform="translate(961.8, 270.8)">
+              <circle r="7" fill="#ef4444" stroke="#ffffff" stroke-width="2"></circle>
+              <text x="0" y="18" text-anchor="middle" font-size="10" fill="#fecaca" font-weight="bold">开封站</text>
+            </g>
+            <g class="station-node" data-id="kaifengdong" data-name="开封东站" data-road="连霍高速" data-type="kaifeng" transform="translate(1009.1, 280.4)">
+              <circle r="6" fill="#ef4444" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="0" y="-12" text-anchor="middle" font-size="10" fill="#fecaca">开封东</text>
+            </g>
+            <g class="station-node" data-id="lankao" data-name="兰考站" data-road="连霍高速" data-type="kaifeng" transform="translate(1227.7, 270.8)">
+              <circle r="7.5" fill="#f97316" stroke="#ffffff" stroke-width="2"></circle>
+              <text x="0" y="-12" text-anchor="middle" font-size="10" fill="#ffedd5" font-weight="bold">兰考站</text>
+            </g>
+            <g class="station-node" data-id="lankaoxi" data-name="兰考西站" data-road="日兰高速" data-type="kaifeng" transform="translate(1204.1, 232.4)">
+              <circle r="6" fill="#f97316" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="-10" y="4" text-anchor="end" font-size="9" fill="#ffedd5">兰考西</text>
+            </g>
+            <g class="station-node" data-id="lankaobei" data-name="兰考北站" data-road="日兰高速" data-type="kaifeng" transform="translate(1227.7, 194.0)">
+              <circle r="6.5" fill="#f97316" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="0" y="-12" text-anchor="middle" font-size="10" fill="#ffedd5" font-weight="bold">兰考北</text>
+            </g>
+
+            <!-- G4 京港澳东环站点 -->
+            <g class="station-node" data-id="zhengzhouxinqu" data-name="郑州新区站" data-road="京港澳高速" data-type="overlap" transform="translate(630.9, 309.2)">
+              <circle r="7" fill="#10b981" stroke="#ffffff" stroke-width="2"></circle>
+              <text x="12" y="4" text-anchor="start" font-size="10" fill="#34d399" font-weight="bold">郑州新区</text>
+            </g>
+            <g class="station-node" data-id="putian" data-name="圃田站" data-road="京港澳高速" data-type="overlap" transform="translate(630.9, 357.2)">
+              <circle r="7" fill="#10b981" stroke="#ffffff" stroke-width="2"></circle>
+              <text x="12" y="4" text-anchor="start" font-size="10" fill="#34d399" font-weight="bold">圃田站</text>
+            </g>
+            <g class="station-node" data-id="hanghailu" data-name="航海路站" data-road="京港澳高速" data-type="overlap" transform="translate(630.9, 376.4)">
+              <circle r="6.5" fill="#10b981" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="-10" y="4" text-anchor="end" font-size="9" fill="#34d399">航海路</text>
+            </g>
+            <g class="station-node" data-id="nansanhuan" data-name="南三环站" data-road="京港澳高速" data-type="overlap" transform="translate(630.9, 405.2)">
+              <circle r="7" fill="#10b981" stroke="#ffffff" stroke-width="2"></circle>
+              <text x="12" y="4" text-anchor="start" font-size="10" fill="#34d399" font-weight="bold">南三环</text>
+            </g>
+
+            <!-- G3001 西南绕城各站 -->
+            <g class="station-node" data-id="kexuedadao" data-name="科学大道站" data-road="西南绕城" data-type="zz" transform="translate(453.6, 290.0)">
+              <circle r="5" fill="#3b82f6" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="-10" y="4" text-anchor="end" font-size="9" fill="#cbd5e1">科学大道</text>
+            </g>
+            <g class="station-node" data-id="zhongyuanxilu" data-name="中原西路站" data-road="西南绕城" data-type="zz" transform="translate(453.6, 328.4)">
+              <circle r="5" fill="#3b82f6" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="-10" y="4" text-anchor="end" font-size="9" fill="#cbd5e1">中原西路</text>
+            </g>
+            <g class="station-node" data-id="longhaixilu" data-name="陇海西路站" data-road="西南绕城" data-type="zz" transform="translate(459.5, 347.6)">
+              <circle r="5" fill="#3b82f6" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="-10" y="4" text-anchor="end" font-size="9" fill="#cbd5e1">陇海西路</text>
+            </g>
+            <g class="station-node" data-id="zhengzhouxinan" data-name="郑州西南站" data-road="郑少/绕城" data-type="zz" transform="translate(489.1, 386.0)">
+              <circle r="7.5" fill="#a855f7" stroke="#ffffff" stroke-width="2"></circle>
+              <text x="-12" y="-10" text-anchor="end" font-size="10" fill="#c084fc" font-weight="bold">郑州西南站</text>
+            </g>
+            <g class="station-node" data-id="houzhai" data-name="侯寨站" data-road="绕城/郑栾" data-type="zz" transform="translate(518.6, 424.4)">
+              <circle r="5.5" fill="#3b82f6" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="0" y="-10" text-anchor="middle" font-size="9" fill="#cbd5e1">侯寨</text>
+            </g>
+            <g class="station-node" data-id="daxuenanlu" data-name="大学南路站" data-road="西南绕城" data-type="zz" transform="translate(548.2, 434.0)">
+              <circle r="5" fill="#3b82f6" stroke="#ffffff" stroke-width="1"></circle>
+              <text x="0" y="16" text-anchor="middle" font-size="9" fill="#94a3b8">大学南路</text>
+            </g>
+            <g class="station-node" data-id="shibalilihe" data-name="十八里河站" data-road="西南绕城" data-type="zz" transform="translate(583.6, 434.0)">
+              <circle r="5.5" fill="#3b82f6" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="0" y="-10" text-anchor="middle" font-size="9" fill="#cbd5e1">十八里河</text>
+            </g>
+
+            <!-- S85 郑少专线真实山区各站 -->
+            <g class="station-node" data-id="xinmi" data-name="新密站" data-road="郑少高速" data-type="dengfeng" transform="translate(412.3, 539.6)">
+              <circle r="5.5" fill="#a855f7" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="12" y="4" text-anchor="start" font-size="9" fill="#e9d5ff">新密站</text>
+            </g>
+            <g class="station-node" data-id="xinmixi" data-name="新密西站" data-road="郑少高速" data-type="dengfeng" transform="translate(341.4, 578.0)">
+              <circle r="5.5" fill="#a855f7" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="12" y="4" text-anchor="start" font-size="9" fill="#e9d5ff">新密西</text>
+            </g>
+            <g class="station-node" data-id="tangzhuang" data-name="唐庄站" data-road="郑少高速" data-type="dengfeng" transform="translate(276.4, 597.2)">
+              <circle r="5.5" fill="#a855f7" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="12" y="4" text-anchor="start" font-size="9" fill="#e9d5ff">唐庄</text>
+            </g>
+            <g class="station-node" data-id="dengfengdong" data-name="登封东站" data-road="郑少高速" data-type="dengfeng" transform="translate(205.5, 626.0)">
+              <circle r="7" fill="#a855f7" stroke="#ffffff" stroke-width="2"></circle>
+              <text x="0" y="-12" text-anchor="middle" font-size="10" fill="#f3e8ff" font-weight="bold">登封东</text>
+            </g>
+            <g class="station-node" data-id="dengfengxi" data-name="登封西站" data-road="郑少高速" data-type="dengfeng" transform="translate(164.1, 616.4)">
+              <circle r="6.5" fill="#a855f7" stroke="#ffffff" stroke-width="2"></circle>
+              <text x="0" y="-12" text-anchor="middle" font-size="10" fill="#f3e8ff" font-weight="bold">登封西</text>
+            </g>
+            <g class="station-node" data-id="shaolin" data-name="少林站" data-road="郑少高速" data-type="dengfeng" transform="translate(134.5, 587.6)">
+              <circle r="8.5" fill="#9333ea" stroke="#fbbf24" stroke-width="2.5"></circle>
+              <text x="0" y="-14" text-anchor="middle" font-size="11" fill="#fbbf24" font-weight="900">少林站 (少林寺)</text>
+            </g>
+
+            <!-- S82 郑民线各站 -->
+            <g class="station-node" data-id="zhengan" data-name="郑庵站" data-road="郑民高速" data-type="overlap" transform="translate(666.4, 414.8)">
+              <circle r="6.5" fill="#10b981" stroke="#ffffff" stroke-width="2"></circle>
+              <text x="0" y="-12" text-anchor="middle" font-size="10" fill="#34d399" font-weight="bold">郑庵站 ★</text>
+            </g>
+            <g class="station-node" data-id="yaojia" data-name="姚家站" data-road="郑民高速" data-type="overlap" transform="translate(731.4, 424.4)">
+              <circle r="6.5" fill="#10b981" stroke="#ffffff" stroke-width="2"></circle>
+              <text x="0" y="-12" text-anchor="middle" font-size="10" fill="#34d399" font-weight="bold">姚家站 ★</text>
+            </g>
+            <g class="station-node" data-id="xinghuaying" data-name="杏花营站" data-road="郑民高速" data-type="kaifeng" transform="translate(885.0, 376.4)">
+              <circle r="6" fill="#eab308" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="0" y="16" text-anchor="middle" font-size="10" fill="#fef08a">杏花营</text>
+            </g>
+            <g class="station-node" data-id="nanyuan" data-name="南苑站" data-road="郑民高速" data-type="kaifeng" transform="translate(950.0, 347.6)">
+              <circle r="7.5" fill="#eab308" stroke="#ffffff" stroke-width="2"></circle>
+              <text x="0" y="18" text-anchor="middle" font-size="10" fill="#fef08a" font-weight="bold">南苑站 (开封南)</text>
+            </g>
+
+            <!-- 新郑/航空港各站 -->
+            <g class="station-node" data-id="zhengzhounan" data-name="郑州南站" data-road="机场高速" data-type="gangqu" transform="translate(583.6, 395.6)">
+              <circle r="5.5" fill="#06b6d4" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="-10" y="4" text-anchor="end" font-size="9" fill="#a5f3fc">郑州南</text>
+            </g>
+            <g class="station-node" data-id="jichangbei" data-name="机场站北口" data-road="机场高速" data-type="gangqu" transform="translate(642.7, 520.4)">
+              <circle r="6" fill="#06b6d4" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="-10" y="4" text-anchor="end" font-size="9" fill="#a5f3fc">机场北口</text>
+            </g>
+            <g class="station-node" data-id="jichangnan" data-name="机场站南口" data-road="机场高速" data-type="gangqu" transform="translate(654.5, 558.8)">
+              <circle r="7" fill="#06b6d4" stroke="#ffffff" stroke-width="2"></circle>
+              <text x="-12" y="4" text-anchor="end" font-size="10" fill="#a5f3fc" font-weight="bold">新郑机场站</text>
+            </g>
+            <g class="station-node" data-id="jichangdong" data-name="机场东站" data-road="商登/机场" data-type="gangqu" transform="translate(684.1, 549.2)">
+              <circle r="5.5" fill="#06b6d4" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="12" y="4" text-anchor="start" font-size="9" fill="#a5f3fc">机场东</text>
+            </g>
+            <g class="station-node" data-id="xuedian" data-name="薛店站" data-road="京港澳高速" data-type="gangqu" transform="translate(619.1, 510.8)">
+              <circle r="5.5" fill="#10b981" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="12" y="4" text-anchor="start" font-size="9" fill="#a7f3d0">薛店</text>
+            </g>
+            <g class="station-node" data-id="xinzheng" data-name="新郑站" data-road="京港澳高速" data-type="gangqu" transform="translate(613.2, 674.0)">
+              <circle r="7" fill="#10b981" stroke="#ffffff" stroke-width="2"></circle>
+              <text x="12" y="4" text-anchor="start" font-size="10" fill="#a7f3d0" font-weight="bold">新郑站</text>
+            </g>
+            <g class="station-node" data-id="shuanghehu" data-name="双鹤湖站" data-road="京港澳高速" data-type="gangqu" transform="translate(642.7, 616.4)">
+              <circle r="5.5" fill="#10b981" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="12" y="4" text-anchor="start" font-size="9" fill="#a7f3d0">双鹤湖</text>
+            </g>
+            <g class="station-node" data-id="xuanyuanqiu" data-name="轩辕丘站" data-road="郑栾高速" data-type="gangqu" transform="translate(548.2, 520.4)">
+              <circle r="5.5" fill="#f59e0b" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="-10" y="4" text-anchor="end" font-size="9" fill="#fde68a">轩辕丘</text>
+            </g>
+            <g class="station-node" data-id="xinzhengxi" data-name="新郑西站" data-road="郑栾高速" data-type="gangqu" transform="translate(554.1, 674.0)">
+              <circle r="6.5" fill="#f59e0b" stroke="#ffffff" stroke-width="2"></circle>
+              <text x="-10" y="4" text-anchor="end" font-size="10" fill="#fde68a" font-weight="bold">新郑西</text>
+            </g>
+
+            <!-- S60 商登横线各站 -->
+            <g class="station-node" data-id="dengfengnan" data-name="登封南站" data-road="商登高速" data-type="dengfeng" transform="translate(181.8, 664.4)">
+              <circle r="6" fill="#ec4899" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="0" y="16" text-anchor="middle" font-size="9" fill="#fbcfe8">登封南</text>
+            </g>
+            <g class="station-node" data-id="qibaishan" data-name="岐伯山站" data-road="商登高速" data-type="dengfeng" transform="translate(382.7, 616.4)">
+              <circle r="5" fill="#ec4899" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="0" y="16" text-anchor="middle" font-size="9" fill="#fbcfe8">岐伯山</text>
+            </g>
+            <g class="station-node" data-id="chaohua" data-name="超化站" data-road="商登高速" data-type="dengfeng" transform="translate(447.7, 626.0)">
+              <circle r="5" fill="#ec4899" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="0" y="16" text-anchor="middle" font-size="9" fill="#fbcfe8">超化</text>
+            </g>
+            <g class="station-node" data-id="xincun" data-name="新村站" data-road="商登高速" data-type="gangqu" transform="translate(554.1, 626.0)">
+              <circle r="5" fill="#ec4899" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="0" y="-12" text-anchor="middle" font-size="9" fill="#fbcfe8">新村</text>
+            </g>
+            <g class="station-node" data-id="xinzhengxinqu" data-name="新郑新区站" data-road="商登高速" data-type="gangqu" transform="translate(595.5, 626.0)">
+              <circle r="5.5" fill="#ec4899" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="0" y="16" text-anchor="middle" font-size="9" fill="#fbcfe8">新郑新区</text>
+            </g>
+            <g class="station-node" data-id="yuanboyuan" data-name="园博园站" data-road="商登高速" data-type="gangqu" transform="translate(678.2, 626.0)">
+              <circle r="7" fill="#ec4899" stroke="#ffffff" stroke-width="2"></circle>
+              <text x="0" y="18" text-anchor="middle" font-size="10" fill="#fbcfe8" font-weight="bold">园博园站</text>
+            </g>
+            <g class="station-node" data-id="gangli" data-name="岗李站" data-road="商登高速" data-type="gangqu" transform="translate(737.3, 626.0)">
+              <circle r="5.5" fill="#ec4899" stroke="#ffffff" stroke-width="1.5"></circle>
+              <text x="0" y="16" text-anchor="middle" font-size="9" fill="#fbcfe8">岗李</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      <!-- 底部图例 -->
+      <div class="legend-bar">
+        <div class="legend-items">
+          <span style="font-weight:700; color:white;">真实走向图例：</span>
+          <span class="legend-item"><span class="legend-line" style="background:#ef4444;"></span> G30连霍(沿黄走廊)</span>
+          <span class="legend-item"><span class="legend-line" style="background:#3b82f6;"></span> G3001西南绕城</span>
+          <span class="legend-item"><span class="legend-line" style="background:#10b981;"></span> G4京港澳(南北纵轴)</span>
+          <span class="legend-item"><span class="legend-line" style="background:#a855f7;"></span> S85郑少(西南山地专线)</span>
+          <span class="legend-item"><span class="legend-line" style="background:#06b6d4;"></span> S1机场通道</span>
+          <span class="legend-item"><span class="legend-line" style="background:#f59e0b;"></span> S88郑栾</span>
+          <span class="legend-item"><span class="legend-line" style="background:#eab308;"></span> S82郑民(东南向)</span>
+          <span class="legend-item"><span class="legend-line" style="background:#ec4899; border-top:1px dashed white;"></span> S60商登(南部横向大通道)</span>
+        </div>
+        <div style="color:var(--cyan-500); font-weight:600;">
+          ★ 绿色站点为郑开兰/郑港重合站，两网无缝互通
+        </div>
+      </div>
+    </section>
+
+    <!-- 右侧工具栏 (4列) -->
+    <aside style="display:flex; flex-direction:column; gap:1.25rem;">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background-color:var(--emerald-500);"></span>
+            免费行程智能测算器
+          </div>
+          <span style="font-size:0.7rem; color:var(--emerald-400); background:rgba(16,185,129,0.15); padding:0.15rem 0.5rem; border-radius:4px;">离线规则库</span>
+        </div>
+
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">车辆号牌类别</label>
+            <div class="plate-radios">
+              <label class="plate-card selected" id="plateCardA">
+                <input type="radio" name="plateType" value="yuA" checked="">
+                <div class="plate-title">豫A / 豫V</div>
+                <div class="plate-sub">郑州籍客车</div>
+              </label>
+              <label class="plate-card" id="plateCardB">
+                <input type="radio" name="plateType" value="yuB">
+                <div class="plate-title">豫B</div>
+                <div class="plate-sub">开封籍客车</div>
+              </label>
+              <label class="plate-card" id="plateCardOther">
+                <input type="radio" name="plateType" value="other">
+                <div class="plate-title">其他号牌</div>
+                <div class="plate-sub">外省市/货车</div>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="startStationSelect">入口收费站 (上高速)</label>
+            <select id="startStationSelect" class="select-input"><option value="">-- 请选择入口收费站 --</option><optgroup label="郑州主城及绕城"><option value="huayuanlu">花园路站 (连霍高速)</option><option value="liulin">柳林站 (连霍高速)</option><option value="dongsanhuanbei">东三环北站 (连霍高速)</option><option value="zhengzhouxinqu">郑州新区站 (京港澳高速)</option><option value="putian">圃田站 (京港澳高速)</option><option value="hanghailu">航海路站 (京港澳高速)</option><option value="nansanhuan">南三环站 (京港澳高速)</option><option value="gouzhao">沟赵站 (连霍/西南绕城)</option><option value="huiji">惠济站 (连霍高速)</option><option value="wenhualu">文化路站 (连霍高速)</option><option value="kexuedadao">科学大道站 (西南绕城高速)</option><option value="zhongyuanxilu">中原西路站 (西南绕城高速)</option><option value="longhaixilu">陇海西路站 (西南绕城高速)</option><option value="zhengzhouxinan">郑州西南站 (马寨) (西南绕城/郑少)</option><option value="houzhai">侯寨站 (西南绕城/郑栾)</option><option value="daxuenanlu">大学南路站 (西南绕城高速)</option><option value="shibalilihe">十八里河站 (西南绕城高速)</option></optgroup><optgroup label="登封 / 新密"><option value="xinmi">新密站 (郑少高速)</option><option value="xinmixi">新密西站 (郑少高速)</option><option value="tangzhuang">唐庄站 (郑少高速)</option><option value="dengfengdong">登封东站 (郑少高速)</option><option value="dengfengxi">登封西站 (郑少高速)</option><option value="shaolin">少林站 (郑少高速)</option><option value="dengfengnan">登封南站 (商登高速)</option><option value="qibaishan">岐伯山站 (商登高速)</option><option value="chaohua">超化站 (商登高速)</option></optgroup><optgroup label="新郑 / 航空港区"><option value="zhengzhounan">郑州南站 (机场高速)</option><option value="jichangbei">机场站北口 (机场高速)</option><option value="jichangnan">机场站南口 (机场高速)</option><option value="jichangdong">机场东站 (商登/机场连接)</option><option value="xuedian">薛店站 (京港澳高速)</option><option value="xinzheng">新郑站 (京港澳高速)</option><option value="shuanghehu">双鹤湖站 (京港澳高速)</option><option value="xuanyuanqiu">轩辕丘站 (郑栾高速)</option><option value="xinzhengxi">新郑西站 (郑栾高速)</option><option value="yuanboyuan">园博园站 (商登高速)</option><option value="xinzhengxinqu">新郑新区站 (商登高速)</option><option value="xincun">新村站 (商登高速)</option><option value="gangli">岗李站 (商登高速)</option></optgroup><optgroup label="开封 / 兰考 / 中牟"><option value="yaojia">姚家站 (郑民高速)</option><option value="zhongmu">中牟站 (连霍高速)</option><option value="kaifengxi">开封西站 (连霍高速)</option><option value="longting">龙亭站 (连霍高速)</option><option value="kaifeng">开封站 (连霍高速)</option><option value="kaifengdong">开封东站 (连霍高速)</option><option value="lankao">兰考站 (连霍高速)</option><option value="lankaoxi">兰考西站 (日兰高速)</option><option value="lankaobei">兰考北站 (日兰高速)</option><option value="xinghuaying">杏花营站 (郑民高速)</option><option value="nanyuan">南苑站 (开封南) (郑民高速)</option></optgroup></select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="endStationSelect">出口收费站 (下高速)</label>
+            <select id="endStationSelect" class="select-input"><option value="">-- 请选择出口收费站 --</option><optgroup label="郑州主城及绕城"><option value="huayuanlu">花园路站 (连霍高速)</option><option value="liulin">柳林站 (连霍高速)</option><option value="dongsanhuanbei">东三环北站 (连霍高速)</option><option value="zhengzhouxinqu">郑州新区站 (京港澳高速)</option><option value="putian">圃田站 (京港澳高速)</option><option value="hanghailu">航海路站 (京港澳高速)</option><option value="nansanhuan">南三环站 (京港澳高速)</option><option value="gouzhao">沟赵站 (连霍/西南绕城)</option><option value="huiji">惠济站 (连霍高速)</option><option value="wenhualu">文化路站 (连霍高速)</option><option value="kexuedadao">科学大道站 (西南绕城高速)</option><option value="zhongyuanxilu">中原西路站 (西南绕城高速)</option><option value="longhaixilu">陇海西路站 (西南绕城高速)</option><option value="zhengzhouxinan">郑州西南站 (马寨) (西南绕城/郑少)</option><option value="houzhai">侯寨站 (西南绕城/郑栾)</option><option value="daxuenanlu">大学南路站 (西南绕城高速)</option><option value="shibalilihe">十八里河站 (西南绕城高速)</option></optgroup><optgroup label="登封 / 新密"><option value="xinmi">新密站 (郑少高速)</option><option value="xinmixi">新密西站 (郑少高速)</option><option value="tangzhuang">唐庄站 (郑少高速)</option><option value="dengfengdong">登封东站 (郑少高速)</option><option value="dengfengxi">登封西站 (郑少高速)</option><option value="shaolin">少林站 (郑少高速)</option><option value="dengfengnan">登封南站 (商登高速)</option><option value="qibaishan">岐伯山站 (商登高速)</option><option value="chaohua">超化站 (商登高速)</option></optgroup><optgroup label="新郑 / 航空港区"><option value="zhengzhounan">郑州南站 (机场高速)</option><option value="jichangbei">机场站北口 (机场高速)</option><option value="jichangnan">机场站南口 (机场高速)</option><option value="jichangdong">机场东站 (商登/机场连接)</option><option value="xuedian">薛店站 (京港澳高速)</option><option value="xinzheng">新郑站 (京港澳高速)</option><option value="shuanghehu">双鹤湖站 (京港澳高速)</option><option value="xuanyuanqiu">轩辕丘站 (郑栾高速)</option><option value="xinzhengxi">新郑西站 (郑栾高速)</option><option value="yuanboyuan">园博园站 (商登高速)</option><option value="xinzhengxinqu">新郑新区站 (商登高速)</option><option value="xincun">新村站 (商登高速)</option><option value="gangli">岗李站 (商登高速)</option></optgroup><optgroup label="开封 / 兰考 / 中牟"><option value="yaojia">姚家站 (郑民高速)</option><option value="zhongmu">中牟站 (连霍高速)</option><option value="kaifengxi">开封西站 (连霍高速)</option><option value="longting">龙亭站 (连霍高速)</option><option value="kaifeng">开封站 (连霍高速)</option><option value="kaifengdong">开封东站 (连霍高速)</option><option value="lankao">兰考站 (连霍高速)</option><option value="lankaoxi">兰考西站 (日兰高速)</option><option value="lankaobei">兰考北站 (日兰高速)</option><option value="xinghuaying">杏花营站 (郑民高速)</option><option value="nanyuan">南苑站 (开封南) (郑民高速)</option></optgroup></select>
+          </div>
+
+          <button id="btnCalculate" type="button" class="btn-calc">
+            立即测算免费资格与路线
+          </button>
+
+          <div class="result-box" id="resultBox">
+            <div class="result-header">
+              <span id="resultBadge" class="result-badge free">100% 免费通行</span>
+              <span id="resultSummary" class="result-summary">豫A/豫V 专属全网通程免费</span>
+            </div>
+            <p id="resultDetail" class="result-detail">从【柳林站】至【少林站】，处于郑少高速S85或商登高速S60真实免费廊道内，豫A/豫V全免。</p>
+            <div id="routeGuide" style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.08); color: var(--blue-400); font-size: 0.75rem; display: block;"><strong>推荐路线：</strong> 走 S85郑少高速 沿嵩山东麓直接连通新密与郑州西南绕城高速。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="flex:1;">
+        <div class="card-header">
+          <div class="card-title">
+            <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background-color:var(--amber-500);"></span>
+            地理方位与出行避坑铁律
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="policy-item">
+            <strong style="color:var(--cyan-500);">① 东西横轴超长跨度：</strong>
+            西起登封少林寺脚下（S85），东至兰考县城（G30连霍），东西直线跨度超 170 公里，豫A/豫V客车全程行驶在免费通道内！
+          </div>
+          <div class="policy-item">
+            <strong style="color:var(--emerald-400);">② 南北纵向直达港区：</strong>
+            主城区南下新郑机场有 S1机场高速、G4京港澳、S88郑栾三条纵向干道，南部由 S60商登高速横贯串联。
+          </div>
+          <div class="policy-item">
+            <strong style="color:var(--amber-400);">③ 进出必须在名录内：</strong>
+            上下站必须均为免费收费站，全程不超出指定免费路段，且正常使用ETC套装（9座及以下小型客车）。
+          </div>
+          <div class="policy-item">
+            <strong style="color:var(--purple-400);">④ 豫B仅限郑开兰：</strong>
+            开封籍豫B车仅在郑开兰19站免费，驶入登封或郑州西南绕城等郑州市属路段需正常缴费。
+          </div>
+
+          <div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; font-size:0.75rem;">
+            <span style="color:var(--text-slate-400);">共涵盖 10条高速 · 50+站点</span>
+            <button id="btnOpenTableModal" style="background:none; border:none; color:var(--blue-400); text-decoration:underline; font-weight:600; cursor:pointer;">
+              查看完整站点名录
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <div id="stationModal" class="modal-overlay">
+    <div class="modal-window">
+      <div class="modal-header">
+        <div>
+          <h3 style="font-size:1rem; font-weight:700; color:white;">全网 50+ 免费收费站全量名录 (真实地理经纬度分布)</h3>
+          <p style="font-size:0.75rem; color:var(--text-slate-400); margin-top:2px;">点击任意一行即可快速设为起点测算</p>
+        </div>
+        <button id="btnCloseModal" style="background:none; border:none; color:var(--text-slate-400); font-size:1.5rem; cursor:pointer; padding:0 0.5rem;">×</button>
+      </div>
+
+      <div style="padding:0.75rem 1rem; border-bottom:1px solid var(--border-color); background:#070c1d;">
+        <input type="text" id="modalSearchInput" placeholder="输入搜索站点，如：少林、龙亭、新郑、园博园、花园路..." style="width:100%; background:var(--bg-input); border:1px solid var(--border-color); border-radius:0.5rem; padding:0.5rem 0.75rem; font-size:0.75rem; color:white; outline:none;">
+      </div>
+
+      <div style="overflow-y:auto; flex:1; padding:1rem;">
+        <table class="station-table">
+          <thead>
+            <tr>
+              <th>收费站名</th>
+              <th>所属高速公路</th>
+              <th>地理区县</th>
+              <th>适用车牌</th>
+              <th>政策体系归属</th>
+            </tr>
+          </thead>
+          <tbody id="stationTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <footer style="background-color:#060c1d; border-top:1px solid var(--border-color); padding:0.75rem; text-align:center; font-size:0.75rem; color:var(--text-slate-500);">
+    郑州-登封-新郑-航空港-开封-兰考 高速公路政府购买服务ETC免费通行真实地理路线系统 · 真实地理比例绘制 · 支持离线保存
+  </footer>
+
+  <script>
+    const STATIONS = [
+      { id: "huayuanlu", name: "花园路站", road: "连霍高速 (G30)", region: "郑州", policy: "郑州+开封", plates: "豫A/豫V/豫B", isOverlap: true },
+      { id: "liulin", name: "柳林站", road: "连霍高速 (G30)", region: "郑州", policy: "郑州+开封", plates: "豫A/豫V/豫B", isOverlap: true },
+      { id: "dongsanhuanbei", name: "东三环北站", road: "连霍高速 (G30)", region: "郑州", policy: "郑州+开封", plates: "豫A/豫V/豫B", isOverlap: true },
+      { id: "zhengzhouxinqu", name: "郑州新区站", road: "京港澳高速 (G4)", region: "郑州", policy: "郑州+开封", plates: "豫A/豫V/豫B", isOverlap: true },
+      { id: "putian", name: "圃田站", road: "京港澳高速 (G4)", region: "郑州", policy: "郑州+开封", plates: "豫A/豫V/豫B", isOverlap: true },
+      { id: "hanghailu", name: "航海路站", road: "京港澳高速 (G4)", region: "郑州", policy: "郑州+开封", plates: "豫A/豫V/豫B", isOverlap: true },
+      { id: "nansanhuan", name: "南三环站", road: "京港澳高速 (G4)", region: "郑州", policy: "郑州+开封", plates: "豫A/豫V/豫B", isOverlap: true },
+      { id: "zhengan", name: "郑庵站", road: "郑民高速 (S82)", region: "郑州/港区", policy: "郑州+开封+港区", plates: "豫A/豫V/豫B", isOverlap: true },
+      { id: "yaojia", name: "姚家站", road: "郑民高速 (S82)", region: "中牟/港区", policy: "郑州+开封+港区", plates: "豫A/豫V/豫B", isOverlap: true },
+
+      { id: "gouzhao", name: "沟赵站", road: "连霍/西南绕城", region: "郑州", policy: "郑州市域", plates: "豫A/豫V", isOverlap: false },
+      { id: "huiji", name: "惠济站", road: "连霍高速 (G30)", region: "郑州", policy: "郑州市域", plates: "豫A/豫V", isOverlap: false },
+      { id: "wenhualu", name: "文化路站", road: "连霍高速 (G30)", region: "郑州", policy: "郑州市域", plates: "豫A/豫V", isOverlap: false },
+      { id: "kexuedadao", name: "科学大道站", road: "西南绕城高速 (G3001)", region: "郑州", policy: "郑州市域", plates: "豫A/豫V", isOverlap: false },
+      { id: "zhongyuanxilu", name: "中原西路站", road: "西南绕城高速 (G3001)", region: "郑州", policy: "郑州市域", plates: "豫A/豫V", isOverlap: false },
+      { id: "longhaixilu", name: "陇海西路站", road: "西南绕城高速 (G3001)", region: "郑州", policy: "郑州市域", plates: "豫A/豫V", isOverlap: false },
+      { id: "zhengzhouxinan", name: "郑州西南站 (马寨)", road: "西南绕城/郑少", region: "郑州", policy: "郑州市域+登封", plates: "豫A/豫V", isOverlap: false },
+      { id: "houzhai", name: "侯寨站", road: "西南绕城/郑栾", region: "郑州", policy: "郑州市域+新郑", plates: "豫A/豫V", isOverlap: false },
+      { id: "daxuenanlu", name: "大学南路站", road: "西南绕城高速 (G3001)", region: "郑州", policy: "郑州市域", plates: "豫A/豫V", isOverlap: false },
+      { id: "shibalilihe", name: "十八里河站", road: "西南绕城高速 (G3001)", region: "郑州", policy: "郑州市域", plates: "豫A/豫V", isOverlap: false },
+
+      { id: "xinmi", name: "新密站", road: "郑少高速 (S85)", region: "新密", policy: "登封专线", plates: "豫A/豫V", isOverlap: false },
+      { id: "xinmixi", name: "新密西站", road: "郑少高速 (S85)", region: "新密", policy: "登封专线", plates: "豫A/豫V", isOverlap: false },
+      { id: "tangzhuang", name: "唐庄站", road: "郑少高速 (S85)", region: "登封", policy: "登封专线", plates: "豫A/豫V", isOverlap: false },
+      { id: "dengfengdong", name: "登封东站", road: "郑少高速 (S85)", region: "登封", policy: "登封专线", plates: "豫A/豫V", isOverlap: false },
+      { id: "dengfengxi", name: "登封西站", road: "郑少高速 (S85)", region: "登封", policy: "登封专线", plates: "豫A/豫V", isOverlap: false },
+      { id: "shaolin", name: "少林站", road: "郑少高速 (S85)", region: "登封", policy: "登封专线", plates: "豫A/豫V", isOverlap: false },
+      { id: "dengfengnan", name: "登封南站", road: "商登高速 (S60)", region: "登封", policy: "登封专线", plates: "豫A/豫V", isOverlap: false },
+      { id: "qibaishan", name: "岐伯山站", road: "商登高速 (S60)", region: "新密", policy: "新密专线", plates: "豫A/豫V", isOverlap: false },
+      { id: "chaohua", name: "超化站", road: "商登高速 (S60)", region: "新密", policy: "新密专线", plates: "豫A/豫V", isOverlap: false },
+
+      { id: "zhengzhounan", name: "郑州南站", road: "机场高速 (S1)", region: "航空港/郑州", policy: "郑港主通道", plates: "豫A/豫V", isOverlap: false },
+      { id: "jichangbei", name: "机场站北口", road: "机场高速 (S1)", region: "航空港区", policy: "郑港主通道", plates: "豫A/豫V", isOverlap: false },
+      { id: "jichangnan", name: "机场站南口", road: "机场高速 (S1)", region: "航空港区", policy: "郑港主通道", plates: "豫A/豫V", isOverlap: false },
+      { id: "jichangdong", name: "机场东站", road: "商登/机场连接", region: "航空港区", policy: "郑港主通道", plates: "豫A/豫V", isOverlap: false },
+      { id: "xuedian", name: "薛店站", road: "京港澳高速 (G4)", region: "新郑", policy: "郑港/新郑", plates: "豫A/豫V", isOverlap: false },
+      { id: "xinzheng", name: "新郑站", road: "京港澳高速 (G4)", region: "新郑", policy: "郑州南部边界", plates: "豫A/豫V", isOverlap: false },
+      { id: "shuanghehu", name: "双鹤湖站", road: "京港澳高速 (G4)", region: "航空港区", policy: "郑港主通道", plates: "豫A/豫V", isOverlap: false },
+      { id: "xuanyuanqiu", name: "轩辕丘站", road: "郑栾高速 (S88)", region: "新郑", policy: "新郑专线", plates: "豫A/豫V", isOverlap: false },
+      { id: "xinzhengxi", name: "新郑西站", road: "郑栾高速 (S88)", region: "新郑", policy: "新郑专线", plates: "豫A/豫V", isOverlap: false },
+      { id: "yuanboyuan", name: "园博园站", road: "商登高速 (S60)", region: "航空港区", policy: "郑港主通道", plates: "豫A/豫V", isOverlap: false },
+      { id: "xinzhengxinqu", name: "新郑新区站", road: "商登高速 (S60)", region: "新郑", policy: "新郑专线", plates: "豫A/豫V", isOverlap: false },
+      { id: "xincun", name: "新村站", road: "商登高速 (S60)", region: "新郑", policy: "新郑专线", plates: "豫A/豫V", isOverlap: false },
+      { id: "gangli", name: "岗李站", road: "商登高速 (S60)", region: "航空港区", policy: "郑港主通道", plates: "豫A/豫V", isOverlap: false },
+
+      { id: "zhongmu", name: "中牟站", road: "连霍高速 (G30)", region: "中牟", policy: "郑开兰", plates: "豫A/豫V/豫B", isOverlap: false },
+      { id: "kaifengxi", name: "开封西站", road: "连霍高速 (G30)", region: "开封", policy: "郑开兰", plates: "豫A/豫V/豫B", isOverlap: false },
+      { id: "longting", name: "龙亭站", road: "连霍高速 (G30)", region: "开封", policy: "郑开兰", plates: "豫A/豫V/豫B", isOverlap: false },
+      { id: "kaifeng", name: "开封站", road: "连霍高速 (G30)", region: "开封", policy: "郑开兰", plates: "豫A/豫V/豫B", isOverlap: false },
+      { id: "kaifengdong", name: "开封东站", road: "连霍高速 (G30)", region: "开封", policy: "郑开兰", plates: "豫A/豫V/豫B", isOverlap: false },
+      { id: "lankao", name: "兰考站", road: "连霍高速 (G30)", region: "兰考", policy: "郑开兰东边界", plates: "豫A/豫V/豫B", isOverlap: false },
+      { id: "lankaoxi", name: "兰考西站", road: "日兰高速 (G1511)", region: "兰考", policy: "郑开兰", plates: "豫A/豫V/豫B", isOverlap: false },
+      { id: "lankaobei", name: "兰考北站", road: "日兰高速 (G1511)", region: "兰考", policy: "郑开兰", plates: "豫A/豫V/豫B", isOverlap: false },
+      { id: "xinghuaying", name: "杏花营站", road: "郑民高速 (S82)", region: "开封", policy: "郑开兰", plates: "豫A/豫V/豫B", isOverlap: false },
+      { id: "nanyuan", name: "南苑站 (开封南)", road: "郑民高速 (S82)", region: "开封", policy: "郑开兰南线", plates: "豫A/豫V/豫B", isOverlap: false }
+    ];
+
+    function initStationSelects() {
+      const startSelect = document.getElementById('startStationSelect');
+      const endSelect = document.getElementById('endStationSelect');
+      startSelect.innerHTML = '<option value="">-- 请选择入口收费站 --</option>';
+      endSelect.innerHTML = '<option value="">-- 请选择出口收费站 --</option>';
+
+      const groups = {
+        '郑州主城及绕城': STATIONS.filter(s => s.region === '郑州'),
+        '登封 / 新密': STATIONS.filter(s => s.region === '登封' || s.region === '新密'),
+        '新郑 / 航空港区': STATIONS.filter(s => s.region === '新郑' || s.region === '航空港区' || s.region === '航空港/郑州'),
+        '开封 / 兰考 / 中牟': STATIONS.filter(s => s.region === '开封' || s.region === '兰考' || s.region === '中牟' || s.region === '中牟/港区')
+      };
+
+      for (const [groupName, stations] of Object.entries(groups)) {
+        const optgroup1 = document.createElement('optgroup');
+        optgroup1.label = groupName;
+        const optgroup2 = document.createElement('optgroup');
+        optgroup2.label = groupName;
+
+        stations.forEach(st => {
+          const opt1 = document.createElement('option');
+          opt1.value = st.id;
+          opt1.textContent = `${st.name} (${st.road.split(' ')[0]})`;
+          optgroup1.appendChild(opt1);
+
+          const opt2 = document.createElement('option');
+          opt2.value = st.id;
+          opt2.textContent = `${st.name} (${st.road.split(' ')[0]})`;
+          optgroup2.appendChild(opt2);
+        });
+
+        startSelect.appendChild(optgroup1);
+        endSelect.appendChild(optgroup2);
+      }
+
+      startSelect.value = 'liulin';
+      endSelect.value = 'shaolin';
+    }
+
+    function calculateRoute() {
+      const startId = document.getElementById('startStationSelect').value;
+      const endId = document.getElementById('endStationSelect').value;
+      const plateRadio = document.querySelector('input[name="plateType"]:checked');
+      const plateType = plateRadio ? plateRadio.value : 'yuA';
+
+      const badge = document.getElementById('resultBadge');
+      const summary = document.getElementById('resultSummary');
+      const detail = document.getElementById('resultDetail');
+      const routeGuide = document.getElementById('routeGuide');
+
+      if (!startId || !endId) {
+        badge.className = 'result-badge warning';
+        badge.textContent = '提示';
+        summary.textContent = '请完整选择出发与到达收费站';
+        detail.textContent = '请在上方的下拉菜单中选择您上高速和下高速的收费站点。';
+        routeGuide.style.display = 'none';
+        return;
+      }
+
+      if (startId === endId) {
+        badge.className = 'result-badge warning';
+        badge.textContent = '同站进出';
+        summary.textContent = '进出站相同';
+        detail.textContent = '起点与终点为同一个收费站，未产生长途有效行驶路径。';
+        routeGuide.style.display = 'none';
+        return;
+      }
+
+      const start = STATIONS.find(s => s.id === startId);
+      const end = STATIONS.find(s => s.id === endId);
+
+      if (plateType === 'other') {
+        badge.className = 'result-badge danger';
+        badge.textContent = '全额收费';
+        summary.textContent = '不满足车牌免费政策资格';
+        detail.textContent = '目前该政府统缴免费政策仅面向安装ETC的豫A、豫V（郑州籍）以及豫B（开封籍）小型客车（9座及以下）。其他地区牌照车辆需正常全额缴纳高速通行费。';
+        routeGuide.style.display = 'none';
+        return;
+      }
+
+      if (plateType === 'yuB') {
+        const isStartZKL = start.policy.includes('郑开兰') || start.isOverlap;
+        const isEndZKL = end.policy.includes('郑开兰') || end.isOverlap;
+
+        if (isStartZKL && isEndZKL) {
+          badge.className = 'result-badge free';
+          badge.textContent = '100% 免费';
+          summary.textContent = '享受郑开兰高速统缴免费政策';
+          detail.textContent = `恭喜！您的豫B客车在郑开兰19个指定收费站之间往返（${start.name} ⇄ ${end.name}），通行费由政府购买统缴，车主全免！`;
+          let guide = `<strong>推荐路线：</strong> 行驶沿黄【G30连霍高速】或南部【S82郑民高速】，全程ETC车道通行。`;
+          routeGuide.innerHTML = guide;
+          routeGuide.style.display = 'block';
+        } else {
+          badge.className = 'result-badge warning';
+          badge.textContent = '超出免费范围';
+          summary.textContent = '豫B车牌超出郑开兰免费路网';
+          detail.textContent = `注意：豫B牌照仅在郑开兰两地19个指定站点免费。您选择的站点（${!isStartZKL ? start.name : end.name}）属于郑州市域/登封/新郑专线，豫B车辆进入该路段需照章缴纳通行费。`;
+          routeGuide.style.display = 'none';
+        }
+        return;
+      }
+
+      // 豫A / 豫V 牌照
+      badge.className = 'result-badge free';
+      badge.textContent = '100% 免费通行';
+      summary.textContent = '豫A/豫V 专属全网通程免费';
+
+      let routeText = '';
+      if ((start.region === '登封' || end.region === '登封') && (start.region === '开封' || end.region === '开封' || start.region === '兰考' || end.region === '兰考')) {
+        detail.textContent = `从【${start.name}】至【${end.name}】，横跨登封-郑州-开封/兰考东西长达170+公里真实地理大走廊，豫A/豫V安装ETC客车可享全程免费！`;
+        routeText = `<strong>推荐真实高速路线：</strong> ${start.name} ➔ S85郑少高速(经新密山区下山) ➔ 郑州西南绕城(G3001) ➔ 经由G30连霍高速(沿黄河北线) 或 S82郑民高速(南线) ➔ ${end.name}。`;
+      } else if (start.region === '登封' || end.region === '登封') {
+        detail.textContent = `从【${start.name}】至【${end.name}】，处于郑少高速S85或商登高速S60真实免费廊道内，豫A/豫V全免。`;
+        routeText = `<strong>推荐路线：</strong> 走 S85郑少高速 沿嵩山东麓直接连通新密与郑州西南绕城高速。`;
+      } else if (start.region.includes('航空港') || end.region.includes('航空港') || start.region.includes('新郑') || end.region.includes('新郑')) {
+        detail.textContent = `从【${start.name}】至【${end.name}】，属于郑州主城区与航空港区/新郑免费主通道范畴，豫A/豫V全免。`;
+        routeText = `<strong>推荐路线：</strong> 可经 S1机场高速、G4京港澳高速 或 S88郑栾高速 直达，南部横向联络走 S60商登高速。`;
+      } else if (start.region === '开封' || end.region === '开封' || start.region === '兰考' || end.region === '兰考') {
+        detail.textContent = `从【${start.name}】至【${end.name}】，行驶在郑开兰高速免费通道内，豫A/豫V享受免单。`;
+        routeText = `<strong>推荐路线：</strong> 北线走 G30连霍高速（中牟/开封/兰考各站），南线走 S82郑民高速（郑庵/姚家/南苑站）。`;
+      } else {
+        detail.textContent = `从【${start.name}】至【${end.name}】，全程位于郑州绕城高速内，豫A/豫V ETC小客车免费通行。`;
+        routeText = `<strong>推荐路线：</strong> 直接沿 G3001绕城高速环线行驶至对应出入口下站。`;
+      }
+
+      routeGuide.innerHTML = routeText;
+      routeGuide.style.display = 'block';
+    }
+
+    function setupRegionFilter() {
+      const filterGroup = document.getElementById('regionFilterGroup');
+      const buttons = filterGroup.querySelectorAll('.filter-btn');
+      const mapStatus = document.getElementById('mapStatusText');
+
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          buttons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          const region = btn.dataset.region;
+          filterMapElements(region);
+        });
+      });
+
+      function filterMapElements(region) {
+        const nodes = document.querySelectorAll('.station-node');
+        const lines = document.querySelectorAll('.route-line');
+
+        if (region === 'all') {
+          nodes.forEach(n => { n.style.opacity = '1'; });
+          lines.forEach(l => { l.style.opacity = '1'; });
+          mapStatus.textContent = '实际地理比例全景模式 (50+收费站)';
+          return;
+        }
+
+        nodes.forEach(n => {
+          const type = n.dataset.type;
+          if (region === 'zhengzhou' && (type === 'zz' || type === 'overlap')) {
+            n.style.opacity = '1';
+          } else if (region === 'dengfeng' && (type === 'dengfeng' || (type === 'zz' && n.dataset.id === 'zhengzhouxinan'))) {
+            n.style.opacity = '1';
+          } else if (region === 'gangqu' && (type === 'gangqu' || type === 'overlap')) {
+            n.style.opacity = '1';
+          } else if (region === 'kaifeng' && (type === 'kaifeng' || type === 'overlap')) {
+            n.style.opacity = '1';
+          } else {
+            n.style.opacity = '0.2';
+          }
+        });
+
+        lines.forEach(l => {
+          const id = l.id;
+          if (region === 'zhengzhou' && (id === 'line-bypass' || id === 'line-lianhuo' || id === 'line-jinggangao')) {
+            l.style.opacity = '1';
+          } else if (region === 'dengfeng' && (id === 'line-zhengshao' || id === 'line-shangdeng' || id === 'line-bypass')) {
+            l.style.opacity = '1';
+          } else if (region === 'gangqu' && (id === 'line-airport' || id === 'line-jinggangao' || id === 'line-zhengluan' || id === 'line-shangdeng')) {
+            l.style.opacity = '1';
+          } else if (region === 'kaifeng' && (id === 'line-lianhuo' || id === 'line-zhengmin' || id === 'line-rilan')) {
+            l.style.opacity = '1';
+          } else {
+            l.style.opacity = '0.15';
+          }
+        });
+
+        const statusNames = {
+          'zhengzhou': '郑州主城区及西南绕城高速',
+          'dengfeng': '登封少林 / 新密专线 (S85郑少+S60商登)',
+          'gangqu': '新郑与航空港区主通道 (S1机场+G4+S88)',
+          'kaifeng': '郑开兰快速通道 (G30连霍+S82郑民+G1511)'
+        };
+        mapStatus.textContent = `${statusNames[region]} 真实地理聚焦`;
+      }
+    }
+
+    function setupTooltips() {
+      const tooltip = document.getElementById('hoverTooltip');
+      const tooltipTitle = document.getElementById('tooltipTitle');
+      const tooltipContent = document.getElementById('tooltipContent');
+      const container = document.getElementById('svgContainer');
+
+      const nodes = document.querySelectorAll('.station-node');
+      nodes.forEach(node => {
+        node.addEventListener('mouseenter', () => {
+          const id = node.dataset.id;
+          const st = STATIONS.find(s => s.id === id);
+          if (!st) return;
+
+          tooltipTitle.textContent = `${st.name} ${st.isOverlap ? '★ 核心换乘/重合站' : ''}`;
+          tooltipContent.innerHTML = `
+            <div><strong>所属高速：</strong>${st.road}</div>
+            <div><strong>地理区域：</strong>${st.region}</div>
+            <div><strong>适用车牌：</strong>${st.plates} (需ETC)</div>
+            <div><strong>政策归属：</strong>${st.policy}</div>
+            <div style="margin-top:4px; color:var(--emerald-400); font-weight:700; font-size:10px;">点击快速设为测算站点</div>
+          `;
+          tooltip.style.display = 'block';
+        });
+
+        node.addEventListener('mousemove', (e) => {
+          const rect = container.getBoundingClientRect();
+          let x = e.clientX - rect.left + 15;
+          let y = e.clientY - rect.top + 15;
+          if (x + 230 > rect.width) x = x - 250;
+          if (y + 120 > rect.height) y = y - 130;
+          tooltip.style.left = `${x}px`;
+          tooltip.style.top = `${y}px`;
+        });
+
+        node.addEventListener('mouseleave', () => {
+          tooltip.style.display = 'none';
+        });
+
+        node.addEventListener('click', () => {
+          const id = node.dataset.id;
+          const startSelect = document.getElementById('startStationSelect');
+          const endSelect = document.getElementById('endStationSelect');
+
+          if (!startSelect.value || (startSelect.value && endSelect.value)) {
+            startSelect.value = id;
+            endSelect.value = '';
+          } else {
+            endSelect.value = id;
+            calculateRoute();
+          }
+        });
+      });
+    }
+
+    function setupModalTable() {
+      const modal = document.getElementById('stationModal');
+      const btnOpen = document.getElementById('btnOpenTableModal');
+      const btnClose = document.getElementById('btnCloseModal');
+      const tbody = document.getElementById('stationTableBody');
+      const searchInput = document.getElementById('modalSearchInput');
+
+      function renderTable(filterText = '') {
+        tbody.innerHTML = '';
+        const filtered = STATIONS.filter(s => 
+          s.name.includes(filterText) || 
+          s.road.includes(filterText) || 
+          s.region.includes(filterText) || 
+          s.policy.includes(filterText)
+        );
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="padding:1.5rem; text-align:center; color:var(--text-slate-500);">未找到匹配的收费站</td></tr>';
+          return;
+        }
+
+        filtered.forEach(s => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td style="font-weight:700; color:white;">
+              ${s.name} ${s.isOverlap ? '<span style="font-size:10px; color:var(--emerald-400); background:rgba(16,185,129,0.2); padding:2px 6px; border-radius:4px; margin-left:4px;">两网重合</span>' : ''}
+            </td>
+            <td>${s.road}</td>
+            <td style="color:var(--text-slate-400);">${s.region}</td>
+            <td style="color:var(--emerald-400); font-weight:600;">${s.plates}</td>
+            <td style="color:var(--blue-400);">${s.policy}</td>
+          `;
+
+          tr.addEventListener('click', () => {
+            document.getElementById('startStationSelect').value = s.id;
+            modal.classList.remove('show');
+            calculateRoute();
+          });
+
+          tbody.appendChild(tr);
+        });
+      }
+
+      btnOpen.addEventListener('click', () => {
+        renderTable();
+        modal.classList.add('show');
+        searchInput.value = '';
+        searchInput.focus();
+      });
+
+      btnCloseModal.addEventListener('click', () => {
+        modal.classList.remove('show');
+      });
+
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('show');
+        }
+      });
+
+      searchInput.addEventListener('input', (e) => {
+        renderTable(e.target.value.trim());
+      });
+    }
+
+    function setupOfflineDownload() {
+      document.getElementById('btnDownloadHtml').addEventListener('click', () => {
+        const htmlCode = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        const blob = new Blob([htmlCode], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '郑州-登封-新郑-港区-开封-兰考_ETC高速免费真实地理路线系统.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+    }
+
+    function setupExportPng() {
+      document.getElementById('btnExportPng').addEventListener('click', () => {
+        const svg = document.getElementById('schematicSvg');
+        const serializer = new XMLSerializer();
+        let source = serializer.serializeToString(svg);
+
+        if (!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
+          source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+        }
+
+        const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const img = new Image();
+
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          canvas.width = 2800;
+          canvas.height = 1600;
+          const ctx = canvas.getContext('2d');
+
+          const bgGrad = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 50, canvas.width / 2, canvas.height / 2, canvas.width / 1.2);
+          bgGrad.addColorStop(0, '#0d1a3a');
+          bgGrad.addColorStop(1, '#040816');
+          ctx.fillStyle = bgGrad;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 44px sans-serif';
+          ctx.fillText('郑州-登封-新郑-航空港-开封-兰考 ETC高速免费真实地理路线图', 80, 80);
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = '24px sans-serif';
+          ctx.fillText('结合真实经纬度、黄河走向、山脉与真实公路实际走向绘制 · 豫A/豫V/豫B客车专属', 80, 120);
+
+          ctx.drawImage(img, 0, 120, canvas.width, canvas.height - 200);
+
+          ctx.fillStyle = '#060c1d';
+          ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
+          ctx.fillStyle = '#fbbf24';
+          ctx.font = 'bold 24px sans-serif';
+          ctx.fillText('【出行铁律】必须ETC进出 · 出入站点均在免费名单内 · 全程行驶指定免费路段 · 豫B仅限郑开兰19站', 80, canvas.height - 32);
+
+          const a = document.createElement('a');
+          a.download = '郑州-登封-新郑-港区-开封-兰考ETC高速免费真实地理路线图.png';
+          a.href = canvas.toDataURL('image/png');
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        };
+
+        img.src = url;
+      });
+
+      document.getElementById('btnPrint').addEventListener('click', () => {
+        window.print();
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initStationSelects();
+      setupRegionFilter();
+      setupTooltips();
+      setupModalTable();
+      setupOfflineDownload();
+      setupExportPng();
+
+      document.getElementById('btnCalculate').addEventListener('click', calculateRoute);
+      document.getElementById('startStationSelect').addEventListener('change', calculateRoute);
+      document.getElementById('endStationSelect').addEventListener('change', calculateRoute);
+
+      const plateCards = [
+        { el: document.getElementById('plateCardA'), val: 'yuA' },
+        { el: document.getElementById('plateCardB'), val: 'yuB' },
+        { el: document.getElementById('plateCardOther'), val: 'other' }
+      ];
+
+      plateCards.forEach(item => {
+        item.el.addEventListener('click', () => {
+          plateCards.forEach(c => {
+            c.el.classList.remove('selected', 'selected-red');
+            c.el.querySelector('input').checked = false;
+          });
+          if (item.val === 'other') {
+            item.el.classList.add('selected-red');
+          } else {
+            item.el.classList.add('selected');
+          }
+          item.el.querySelector('input').checked = true;
+          calculateRoute();
+        });
+      });
+
+      calculateRoute();
+    });
+  </script>
+
+</body></html>
